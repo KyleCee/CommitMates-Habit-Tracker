@@ -1,4 +1,4 @@
-# 🌟 CommitMates
+# 🌟 RUMI (Reflect Understand Maintain Improve)
 
 A full-stack web application designed to help you build better habits, track your mood, and reward your consistent progress. 
 
