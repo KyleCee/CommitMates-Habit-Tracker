@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Habits</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #F5F1EA;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* sidebar on left */
+    .content-area {
+      margin-left: 250px;
+    }
+
+    header {
+      background-color: #8FAA9D;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 1px;
+      position: relative;
+      margin-left: 10px;
+    }
+
+    header a {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #B4C6A6;
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background-color: #A2B598;
+    }
+
+    main {
+      padding: 40px;
+    }
+
+    .category-block {
+      margin-bottom: 40px;
+    }
+    .category-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #5D7E6D;
+      margin-top: 20px;
+      border-bottom: 1px solid #C5D3C1;
+      padding-bottom: 6px;
+    }
+
+    .habit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .habit-card {
+      background-color: #FAF7F2;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .habit-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+
+    /* paused label */
+    .paused-label {
+      display: none;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #B55;
+    }
+
+    .habit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+    .habit-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #5D7E6D;
+    }
+
+    .habit-icons {
+      display: flex;
+      gap: 10px;
+    }
+    .habit-icons button {
+      background: none;
+      border: none;
+      color: #6D8E7A;
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+    .habit-icons button:hover {
+      color: #4C6E5A;
+    }
+
+    .habit-desc {
+      margin-top: 10px;
+      color: #555;
+      line-height: 1.4;
+    }
+    .habit-duration {
+      margin-top: 14px;
+      font-weight: 600;
+      color: #7B9478;
+    }
+
+    /* similar to dashboard */
+    .habit-goal-info {
+      margin-top: 10px;
+      color: #3A5F4F; /* different color than description */
+      font-weight: 600;
+      background-color: #EDF3EA; /* subtle background */
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 5;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: #FAF7F2;
+      border-radius: 12px;
+      width: 380px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-align: left;
+    }
+    label { display: block; margin-top: 15px; font-weight: 600; color: #5D7E6D; }
+    input, textarea, select {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #B4C6A6;
+      background: #ffffff;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .form-actions {
+      margin-top: 25px;
+      text-align: right;
+    }
+    .form-actions button {
+      background: #8FAA9D;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .form-actions button.cancel {
+      background: #B4C6A6;
+    }
+
+    .add-category {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .add-category input {
+      width: 200px;
+      margin-right: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #B4C6A6;
+    }
+    .add-category button {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      background-color: #8FAA9D;
+      color: white;
+      cursor: pointer;
+    }
+    .add-category button:hover {
+      background-color: #7B9478;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+  <div class="content-area">
+
+    <header>
+      <a id="openGoalModal" href="#" style="left: 40px; right: auto;">Set Goal</a>
+      Habits
+      <a href="/habits/archived">Archived Habits</a>
+    </header>
+
+    <main>
+
+      <!-- add new category -->
+      <div class="add-category">
+        <form th:action="@{/habits/category/new}" method="post">
+          <input type="text" name="name" placeholder="New Category Name" required>
+          <button type="submit">Add Category</button>
+        </form>
+      </div>
+
+      <!-- group habits by category -->
+      <div th:each="category : ${categories}" class="category-block">
+        <div class="category-title">
+          <span th:text="${category.name}"></span>
+          <a th:href="@{'/habits/category/delete/' + ${category.id}}" style="margin-left:10px; color:#B44;">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+        </div>
+
+        <div class="habit-grid">
+          <div class="habit-card" th:each="habit : ${category.habits}">
+            <div class="habit-header">
+              <div class="habit-title" th:text="${habit.title}">Habit Title</div>
+              <div class="habit-icons">
+
+                <!-- buttons -->
+                <button type="button"
+                        th:attr="data-id=${habit.id},data-title=${habit.title},data-description=${habit.description},data-hours=${habit.hours},data-minutes=${habit.minutes},data-category=${habit.category != null ? habit.category.id : 0}"
+                        onclick="openEditModal(this)">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <!-- copy button -->
+                <button type="button" th:attr="data-id=${habit.id}" onclick="duplicateHabit(this)">
+                  <i class="fa-solid fa-copy"></i>
+                </button>
+                <!-- delete button -->
+                <button type="button" th:attr="data-id=${habit.id}" onclick="openDeleteModal(this)">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <!-- archive button -->
+                <button type="button" th:attr="data-id=${habit.id}" onclick="openArchiveModal(this)">
+                  <i class="fa-solid fa-box-archive"></i>
+                </button>
+
+                <!-- pause button -->
+                <button type="button" onclick="togglePause(this)">
+                  <i class="fa-solid fa-pause"></i>
+                </button>
+
+              </div>
+            </div>
+
+            <div class="habit-desc" th:text="${habit.description}">Description...</div>
+
+            <!-- pause -->
+            <div class="paused-label">Paused</div>
+
+            <div class="habit-duration">
+              Duration: <span th:text="${habit.hours}">1</span>h 
+              <span th:text="${habit.minutes}">30</span>m
+              Actual: <span th:text="${habit.formattedTimeSpent}" style="color: #8FAA9D;">0h 0m</span>
+            </div>
+
+            <!-- new goal display -->
+            <div class="habit-goal-info">
+              <div th:if="${habit.frequency != null}">
+                Frequency: <span th:text="${habit.frequency}"></span>
+              </div>
+              <div th:if="${habit.target != null}">
+                Target: <span th:text="${habit.target}"></span>
+              </div>
+              <div th:if="${habit.startDate != null}">
+                Date:
+                <span th:text="${habit.startDate}"></span>
+                to
+                <span th:text="${habit.endDate}"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div> 
+
+  <!-- edit modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2>Edit Habit</h2>
+      <form th:action="@{/habits/save}" method="post">
+        <input type="hidden" id="editId" name="id">
+
+        <label>Title</label>
+        <input type="text" id="editTitle" name="title" required>
+
+        <label>Description</label>
+        <textarea id="editDescription" name="description" rows="3" required></textarea>
+
+        <label>Duration</label>
+        <div style="display: flex; gap: 10px;">
+          <select id="editHours" name="hours" required></select>
+          <select id="editMinutes" name="minutes" required></select>
+        </div>
+
+        <!-- New category dropdown -->
+        <label>Category</label>
+        <select id="editCategory" name="categoryId" required>
+          <option value="">Select Category</option>
+          <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+        </select>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" onclick="closeEditModal()">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- delete confirmation -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <h2>Confirm Deletion</h2>
+      <p>Are you sure you want to delete this habit?</p>
+      <div class="form-actions">
+        <button type="button" class="cancel" onclick="closeDeleteModal()">Cancel</button>
+        <a id="confirmDelete" style="text-decoration: none;">
+          <button type="button">Delete</button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- archive confirmation -->
+  <div class="modal" id="archiveModal">
+    <div class="modal-content">
+      <h2>Archive Habit</h2>
+      <p>Do you want to archive this habit? You can view it later on the Archived Habits page.</p>
+      <div class="form-actions">
+        <button type="button" class="cancel" onclick="closeArchiveModal()">Cancel</button>
+        <a id="confirmArchive" style="text-decoration: none;">
+          <button type="button">Archive</button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="goalModal" style="display:none;">
+    <div class="modal-content">
+      <h2>Set Goal</h2>
+
+      <form action="/habits/goal/save" method="post">
+
+        <label>Habit</label>
+        <select name="habitId" required>
+          <option th:each="habit : ${habits}" 
+                  th:value="${habit.id}" 
+                  th:text="${habit.title}">
+          </option>
+        </select>
+
+        <label>Frequency</label>
+        <select name="frequency" required>
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Monthly">Monthly</option>
+        </select>
+
+        <label>Target</label>
+        <input type="text" name="target" placeholder="e.g. meditate 1 hour" required>
+
+        <label>Start Date</label>
+        <input type="date" name="startDate" required>
+
+        <label>End Date</label>
+        <input type="date" name="endDate" required>
+
+        <div class="form-actions">
+          <button type="button" class="cancel" onclick="document.getElementById('goalModal').style.display='none'">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // hr/min selects populated once only
+    document.addEventListener('DOMContentLoaded', () => {
+      const hourSelect = document.getElementById('editHours');
+      const minuteSelect = document.getElementById('editMinutes');
+      // 1-12 hours
+      for (let i = 0; i <= 12; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i} hour${i !== 1 ? 's' : ''}`;
+        hourSelect.appendChild(opt);
+      }
+
+      // 1 minute interval
+      for (let i = 0; i < 60; i += 1) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i} min`;
+        minuteSelect.appendChild(opt);
+      }
+    });
+
+    // when user pauses toggle the buttons (switch pause and play logos)
+    function togglePause(btn) {
+      const card = btn.closest(".habit-card");
+      const label = card.querySelector(".paused-label");
+      const icon = btn.querySelector("i");
+
+      if (label.style.display === "block") {
+        label.style.display = "none";
+        icon.classList.remove("fa-play");
+        icon.classList.add("fa-pause");
+      } else {
+        label.style.display = "block";
+        icon.classList.remove("fa-pause");
+        icon.classList.add("fa-play");
+      }
+    }
+
+    // open goal modal
+    document.getElementById("openGoalModal").onclick = function () {
+      document.getElementById("goalModal").style.display = "flex";
+    };
+
+    // edit modal
+    function openEditModal(btn) {
+      document.getElementById('editId').value = btn.getAttribute('data-id');
+      document.getElementById('editTitle').value = btn.getAttribute('data-title');
+      document.getElementById('editDescription').value = btn.getAttribute('data-description');
+      document.getElementById('editHours').value = btn.getAttribute('data-hours');
+      document.getElementById('editMinutes').value = btn.getAttribute('data-minutes');
+      document.getElementById('editCategory').value = btn.getAttribute('data-category');
+      document.getElementById('editModal').style.display = 'flex';
+    }
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+    // delete modal
+    function openDeleteModal(btn) {
+      const id = btn.getAttribute('data-id');
+      document.getElementById('confirmDelete').setAttribute('href', '/habits/delete/' + id);
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+
+    // archive modal
+    function openArchiveModal(btn) {
+      const id = btn.getAttribute('data-id');
+      document.getElementById('confirmArchive').setAttribute('href', '/habits/archive/' + id);
+      document.getElementById('archiveModal').style.display = 'flex';
+    }
+    function closeArchiveModal() { document.getElementById('archiveModal').style.display = 'none'; }
+
+    // duplicate habit
+    function duplicateHabit(btn) {
+      const id = btn.getAttribute('data-id');
+      window.location.href = '/habits/duplicate/' + id;
+    }
+
+    // close modals on outside click
+    window.onclick = e => {
+      const editModal = document.getElementById('editModal');
+      const deleteModal = document.getElementById('deleteModal');
+      const archiveModal = document.getElementById('archiveModal');
+      const goalModal = document.getElementById('goalModal');
+      if (e.target === editModal) editModal.style.display = 'none';
+      if (e.target === deleteModal) deleteModal.style.display = 'none';
+      if (e.target === archiveModal) archiveModal.style.display = 'none';
+      if (e.target === goalModal) goalModal.style.display = 'none';
+    };
+  </script>
+
+</body>
+</html>

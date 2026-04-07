@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="@{/style.css}">
+</head>
+
+<body>
+<div class="container">
+    <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+    <aside class="right-panel">
+        <div class="dashboardContents">
+
+        <!-- Theme Button -->
+        <button id="themeToggle"  style="
+            width:200px;
+            align-self: flex-start;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+
+        "> Theme</button>
+
+        <!-- Reminder -->
+        <div th:if="${reminder}" class="reminder-box">
+            <i class="fa-solid fa-heart"></i>
+            <span th:text="${reminder}"></span>
+        </div>
+
+        <!-- Affirmation -->
+        <div class="daily-affirmationBox">
+            <h3>A Light for Your Day</h3>
+            <p th:text="${dailyAffirmationsMessage}">you are capable of amazing things.</p>
+        </div>
+
+        <!-- New Habit -->
+        <button class="new-habit-btn" id="openModalBtn">+ New Habit</button>
+
+        <!-- Calendar -->
+    <div class="dashboard-grid">
+        <div class="calendar-box">
+            <h3>Calendar</h3>
+            <div id="calendar"></div>
+        </div>
+        <div class="todoList">
+            <h2>To-Do List📋</h2>
+            <div class="todo-items">
+                <div class="todo-item">
+                    <input type="checkbox">
+                    <div class="todo-text">
+                        <strong>Sample Task</strong>
+                        <p>add tasks here..</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="todo-add">
+                <input type="text" id="newTodo" placeholder="New task...">
+                <button onclick="addTodo()">Add</button>
+            </div>
+        </div>
+        <!-- Achievements -->
+        <div class="achievement-box">
+            <h3>Achievements</h3>
+            <div class="achievement-content">
+                <p>No achievements yet!</p>
+            </div>
+        </div>
+        </div>
+    </div>
+    </aside>
+</div>
+
+
+<!--habit category -->
+<div class="modal" id="habitModal">
+    <div class="modal-content">
+        <h2>Create New Habit</h2>
+
+        <form th:action="@{/habits/new}" method="post">
+            <label>Title</label>
+            <input type="text" name="title" required>
+            <label>Description</label>
+            <textarea name="description" rows="3" required></textarea>
+            <label>Duration</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="hours" name="hours" required></select>
+                <select id="minutes" name="minutes" required></select>
+            </div>
+            <label>Category</label>
+            <select name="categoryId" id="categorySelect" required>
+                <option value="">Select Category</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${cat.name}">
+                </option>
+            </select>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+                <input type="text" id="newCategoryName" placeholder="New Category Name" style="flex:1;">
+                <button type="button" onclick="createCategory()">Add</button>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="cancel" id="closeModalBtn">Cancel</button>
+                <button type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Calendar and Logic-->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        flatpickr("#calendar", {
+            inline: true,
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+
+        const modal = document.getElementById('habitModal');
+        const openBtn = document.getElementById('openModalBtn');
+        const closeBtn = document.getElementById('closeModalBtn');
+
+        const hourSelect = document.getElementById('hours');
+        const minuteSelect = document.getElementById('minutes');
+
+        for (let i = 0; i <= 12; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${i} hour${i !== 1 ? 's' : ''}`;
+            hourSelect.appendChild(opt);
+        }
+
+        for (let i = 0; i < 60; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${i} min`;
+            minuteSelect.appendChild(opt);
+        }
+
+        openBtn.onclick = () => {
+            document.querySelector('input[name="title"]').value = "";
+            document.querySelector('textarea[name="description"]').value = "";
+            hourSelect.value = "0";
+            minuteSelect.value = "0";
+            document.getElementById('categorySelect').value = "";
+            modal.style.display = 'flex';
+        };
+
+        closeBtn.onclick = () => modal.style.display = 'none';
+        window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+
+    });
+</script>
+
+
+<!-- Create Category -->
+<script>
+    async function createCategory() {
+        const input = document.getElementById('newCategoryName');
+        const name = input.value.trim();
+
+        if (!name) return;
+
+        const res = await fetch('/habits/category/new/raw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ name })
+        });
+
+        if (!res.ok) return;
+
+        const id = await res.text();
+        const sel = document.getElementById('categorySelect');
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = name;
+
+        sel.appendChild(opt);
+        sel.value = id;
+
+        input.value = '';
+    }
+</script>
+
+
+<!-- Close modal on sidebar navigation -->
+<script>
+    document.querySelectorAll('.sidebar a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('habitModal').style.display = 'none';
+        });
+    });
+</script>
+
+
+<!-- Theme Toggle (FIXED, NO TYPOS) -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const themeButton = document.getElementById("themeToggle");
+        const root = document.documentElement;
+
+        // load saved theme correctly
+        let themesaved = localStorage.getItem("rumiTheme");
+
+        if (themesaved === "dark") {
+            root.setAttribute("dark_theme", "dark");
+            themeButton.textContent = "Light Theme";
+        } else {
+            root.setAttribute("dark_theme", "light");
+            themeButton.textContent = "Dark Theme";
+        }
+
+        // toggle listener (fixed variable names)
+        themeButton.addEventListener("click", () => {
+            let currentTheme = root.getAttribute("dark_theme");
+
+            if (currentTheme === "light") {
+                root.setAttribute("dark_theme", "dark");
+                localStorage.setItem("rumiTheme", "dark");
+                themeButton.textContent = "Light Theme";
+            } else {
+                root.setAttribute("dark_theme", "light");
+                localStorage.setItem("rumiTheme", "light");
+                themeButton.textContent = "Dark Theme";
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('newTodo');
+    const list  = document.querySelector('.todo-items');
+
+    if (!input || !list) return;
+
+    const saved = JSON.parse(localStorage.getItem('rumiTodos') || '[]');
+    saved.forEach(t => {
+        const el = createTodoElement(t.text, t.done);
+        list.appendChild(el);
+    });
+
+    window.addTodo = function () {
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        const el = createTodoElement(msg, false);
+        list.appendChild(el);
+        input.value = '';
+
+        saveTodos();
+    };
+
+    function createTodoElement(text, done) {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+
+        item.innerHTML = `
+            <input type="checkbox" ${done ? 'checked' : ''}>
+            <div class="todo-text">
+                <strong>${text}</strong>
+                <p></p>
+            </div>
+        `;
+
+        item.querySelector('input[type="checkbox"]').addEventListener('change', saveTodos);
+        return item;
+    }
+
+    function saveTodos() {
+        const todos = [];
+        list.querySelectorAll('.todo-item').forEach(item => {
+            const text = item.querySelector('strong').textContent;
+            const done = item.querySelector('input[type="checkbox"]').checked;
+            todos.push({ text, done });
+        });
+        localStorage.setItem('rumiTodos', JSON.stringify(todos));
+    }
+});
+</script>
+</body>
+</html>

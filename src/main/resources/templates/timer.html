@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Timer</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #F5F1EA;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #8FAA9D;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 1px;
+      position: relative;
+    }
+    header a {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #B4C6A6;
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    header a:hover { background-color: #A2B598; }
+
+    main { padding: 40px; max-width: 900px; margin: 0 auto; }
+
+    .timer-section {
+      background-color: #FAF7F2;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .habit-selector {
+      margin-bottom: 30px;
+    }
+
+    .habit-selector label {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      color: #5D7E6D;
+      margin-bottom: 10px;
+    }
+
+    .habit-selector select {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #B4C6A6;
+      background: white;
+      color: #5D7E6D;
+      cursor: pointer;
+    }
+
+    .timer-display {
+      font-size: 72px;
+      font-weight: bold;
+      color: #5D7E6D;
+      margin: 30px 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .timer-controls button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .btn-start {
+      background-color: #8FAA9D;
+      color: white;
+    }
+
+    .btn-start:hover {
+      background-color: #7B9478;
+    }
+
+    .btn-stop {
+      background-color: #D4A574;
+      color: white;
+    }
+
+    .btn-stop:hover {
+      background-color: #C49563;
+    }
+
+    .btn-reset {
+      background-color: #B4C6A6;
+      color: white;
+    }
+
+    .btn-reset:hover {
+      background-color: #A2B598;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .habits-list {
+      background-color: #FAF7F2;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .habits-list h2 {
+      color: #5D7E6D;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .habit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #8FAA9D;
+    }
+
+    .habit-name {
+      font-weight: 600;
+      color: #5D7E6D;
+      font-size: 16px;
+    }
+
+    .habit-time {
+      color: #7B9478;
+      font-weight: 600;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    
+    /* Reward Modal */
+    .reward-modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .reward-content {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: bounceIn 0.5s;
+    }
+    
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .reward-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    
+    .reward-title {
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .reward-message {
+      font-size: 18px;
+      color: white;
+      margin-bottom: 30px;
+    }
+    
+    .reward-close-btn {
+      background: white;
+      color: #FFA500;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .reward-close-btn:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  Timer
+  <a href="/dashboard">Back to Dashboard</a>
+</header>
+
+<main>
+  <!-- Timer Section -->
+  <div class="timer-section">
+    <div class="habit-selector">
+      <label for="habitSelect">Select Habit to Track</label>
+      <select id="habitSelect">
+        <option value="">-- Choose a Habit --</option>
+        <option th:each="habit : ${habits}" 
+                th:value="${habit.id}" 
+                th:text="${habit.title}">
+        </option>
+      </select>
+    </div>
+
+    <div class="timer-display" id="timerDisplay">00:00:00</div>
+
+    <div class="timer-controls">
+      <button class="btn-start" id="startBtn" onclick="startTimer()">
+        <i class="fa-solid fa-play"></i> Start
+      </button>
+      <button class="btn-stop" id="stopBtn" onclick="stopTimer()" disabled>
+        <i class="fa-solid fa-stop"></i> Stop
+      </button>
+      <button class="btn-reset" id="resetBtn" onclick="resetTimer()">
+        <i class="fa-solid fa-rotate-right"></i> Reset
+      </button>
+    </div>
+
+    <div class="message" id="message"></div>
+  </div>
+
+  <!-- Habits List with Time Spent -->
+  <div class="habits-list">
+    <h2>All Habits - Time Spent</h2>
+    <div th:each="habit : ${habits}" class="habit-item">
+      <span class="habit-name" th:text="${habit.title}">Habit Name</span>
+      <span class="habit-time" th:text="${habit.formattedTimeSpent}">0h 0m</span>
+    </div>
+    <div th:if="${#lists.isEmpty(habits)}" style="text-align: center; color: #888; padding: 20px;">
+      No habits yet. Create one first!
+    </div>
+  </div>
+</main>
+
+<!-- Reward Modal -->
+<div class="reward-modal" id="rewardModal">
+  <div class="reward-content">
+    <div class="reward-icon">🏆</div>
+    <div class="reward-title" id="rewardTitle">Congratulations!</div>
+    <div class="reward-message" id="rewardMessage">You've earned a reward!</div>
+    <button class="reward-close-btn" onclick="closeRewardModal()">Awesome!</button>
+  </div>
+</div>
+
+<script>
+  let timerInterval = null;
+  let seconds = 0;
+  let minutes = 0;
+  let hours = 0;
+
+  function updateDisplay() {
+    const display = document.getElementById('timerDisplay');
+    const h = String(hours).padStart(2, '0');
+    const m = String(minutes).padStart(2, '0');
+    const s = String(seconds).padStart(2, '0');
+    display.textContent = `${h}:${m}:${s}`;
+  }
+
+  function startTimer() {
+    const habitSelect = document.getElementById('habitSelect');
+    if (!habitSelect.value) {
+      showMessage('Please select a habit first!', 'error');
+      return;
+    }
+
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    document.getElementById('habitSelect').disabled = true;
+
+    timerInterval = setInterval(() => {
+      seconds++;
+      if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+      }
+      if (minutes >= 60) {
+        minutes = 0;
+        hours++;
+      }
+      updateDisplay();
+    }, 1000);
+
+    showMessage('Timer started!', 'success');
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('habitSelect').disabled = false;
+
+    // Use standard rounding (10s = 0m, 35s = 1m)
+    const totalMinutes = hours * 60 + minutes + Math.round(seconds / 60);
+    const habitId = document.getElementById('habitSelect').value;
+
+    // Send request as long as we have a habit ID.
+    // This allows 0 minutes to be sent, which updates the "Last Activity Date"
+    // and clears the reminder on the dashboard.
+    if (habitId) {
+      saveTimeToHabit(habitId, totalMinutes);
+    } else {
+      showMessage('Timer stopped!', 'success');
+    }
+  }
+
+  function resetTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    seconds = 0;
+    minutes = 0;
+    hours = 0;
+    updateDisplay();
+
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('habitSelect').disabled = false;
+
+    showMessage('Timer reset!', 'success');
+  }
+
+  function saveTimeToHabit(habitId, minutes) {
+    fetch(`/timer/add-time/${habitId}?minutes=${minutes}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    })
+    .then(response => response.text())
+    .then(data => {
+      if (data === 'success') {
+        showMessage(`Time saved! Added ${minutes} minute(s) to this habit.`, 'success');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else if (data.startsWith('reward:')) {
+        // Extract reward title
+        const rewardTitle = data.substring(7);
+        showRewardModal(rewardTitle);
+      } else {
+        showMessage('Error saving time. Please try again.', 'error');
+      }
+    })
+    .catch(error => {
+      showMessage('Error saving time. Please try again.', 'error');
+      console.error('Error:', error);
+    });
+  }
+
+  function showMessage(text, type) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = text;
+    messageDiv.className = 'message ' + type;
+    
+    setTimeout(() => {
+      messageDiv.className = 'message';
+    }, 3000);
+  }
+  
+  function showRewardModal(title) {
+    document.getElementById('rewardTitle').textContent = title;
+    document.getElementById('rewardMessage').textContent = 'Keep up the great work!';
+    document.getElementById('rewardModal').style.display = 'flex';
+  }
+  
+  function closeRewardModal() {
+    document.getElementById('rewardModal').style.display = 'none';
+    window.location.reload();
+  }
+</script>
+</body>
+</html>

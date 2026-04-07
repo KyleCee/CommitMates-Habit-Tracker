@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Check-In History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #F5F1EA;
+            margin:0;
+        }
+
+        h2 {
+            color: #8FAA9D;
+            margin-bottom: 20px;
+        }
+        .btn-back {
+            background: #A8C5B0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn-back:hover {
+            background: #8FAA9D;
+        }
+        .checkin-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #A8C5B0;
+        }
+        .checkin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkin-date {
+            font-weight: bold;
+            color: #555;
+        }
+        .checkin-mood {
+            font-size: 2em;
+        }
+        .checkin-reflection {
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .checkin-message {
+            background: #F5F1EA;
+            padding: 10px;
+            border-radius: 5px;
+            font-style: italic;
+            color: #777;
+            margin-top: 10px;
+        }
+        .no-checkins {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+
+        }
+        .container{
+        display:flex;
+        min-height:100vh;
+        }
+        .content-area{
+        flex:1;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+        <div class="right-panel">
+            <a href="/checkin" class="btn-back">← Back to Check-In</a>
+            <h2>Your Check-In History</h2>
+
+            <div th:if="${checkIns.isEmpty()}" class="no-checkins">
+                <p>No check-ins yet! Start your journey today.</p>
+            </div>
+
+            <div th:each="checkIn : ${checkIns}" class="checkin-card">
+                <div class="checkin-header">
+                    <span class="checkin-date" th:text="${#temporals.format(checkIn.date, 'EEEE, MMMM dd, yyyy')}"></span>
+                    <span class="checkin-mood" th:switch="${checkIn.mood}">
+                    <span th:case="1">😢</span>
+                    <span th:case="2">😕</span>
+                    <span th:case="3">😐</span>
+                    <span th:case="4">😊</span>
+                    <span th:case="5">😄</span>
+                </span>
+                </div>
+                <div class="checkin-reflection" th:text="${checkIn.reflection}"></div>
+                <div th:if="${checkIn.message != null and !checkIn.message.isEmpty()}"
+                     class="checkin-message"
+                     th:text="'💭 ' + ${checkIn.message}"></div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

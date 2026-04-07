@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>My Rewards</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #F5F1EA;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #8FAA9D;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 1px;
+      position: relative;
+    }
+    header a {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #B4C6A6;
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    header a:hover { background-color: #A2B598; }
+
+    main { padding: 40px; max-width: 1000px; margin: 0 auto; }
+
+    .stats-box {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .stats-box h2 {
+      margin: 0;
+      font-size: 48px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .stats-box p {
+      margin: 10px 0 0 0;
+      font-size: 20px;
+    }
+
+    .rewards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .reward-card {
+      background-color: #FAF7F2;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .reward-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .reward-icon {
+      font-size: 60px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .reward-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #5D7E6D;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .reward-description {
+      color: #555;
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .reward-habit {
+      color: #7B9478;
+      font-weight: 600;
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .reward-date {
+      color: #888;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #B44;
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #900;
+    }
+
+    .no-rewards {
+      text-align: center;
+      padding: 60px;
+      color: #888;
+    }
+
+    .no-rewards i {
+      font-size: 80px;
+      color: #ddd;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  My Rewards
+  <a href="/dashboard">Back to Dashboard</a>
+</header>
+
+<main>
+  <!-- Total Rewards Stats -->
+  <div class="stats-box">
+    <h2><i class="fa-solid fa-trophy"></i> <span th:text="${totalRewards}">0</span></h2>
+    <p>Total Rewards Earned</p>
+  </div>
+
+  <!-- Rewards Grid -->
+  <div class="rewards-grid" th:if="${!#lists.isEmpty(rewards)}">
+    <div class="reward-card" th:each="reward : ${rewards}">
+      <a th:href="@{'/rewards/delete/' + ${reward.id}}" 
+         onclick="return confirm('Delete this reward?');"
+         class="delete-btn">
+        <i class="fa-solid fa-trash"></i>
+      </a>
+      
+      <div class="reward-icon">
+        <span th:if="${reward.badgeIcon == 'trophy'}">🏆</span>
+        <span th:if="${reward.badgeIcon == 'star'}">⭐</span>
+        <span th:if="${reward.badgeIcon == 'medal'}">🏅</span>
+        <span th:if="${reward.badgeIcon == 'fire'}">🔥</span>
+      </div>
+      
+      <div class="reward-title" th:text="${reward.title}">Reward Title</div>
+      <div class="reward-description" th:text="${reward.description}">Reward Description</div>
+      <div class="reward-habit">
+        For: <span th:text="${reward.habit.title}">Habit Name</span>
+      </div>
+      <div class="reward-date">
+        Earned on <span th:text="${reward.formattedDate}">2024-11-15</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Rewards Message -->
+  <div class="no-rewards" th:if="${#lists.isEmpty(rewards)}">
+    <i class="fa-solid fa-trophy"></i>
+    <h2>No Rewards Yet!</h2>
+    <p>Complete your habit goals to earn your first reward.</p>
+    <p><a href="/timer" style="color: #8FAA9D;">Start tracking time now!</a></p>
+  </div>
+</main>
+
+</body>
+</html>

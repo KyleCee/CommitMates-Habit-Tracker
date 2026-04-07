@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Archived Habits</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #FAF7F2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #A8C5B0;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 1px;
+      position: relative;
+    }
+    header a {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #B4C6A6;
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    header a:hover {
+      background-color: #8FAA9D;
+    }
+
+    main {
+      padding: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+    .habit-card {
+      background-color: #F5F1EA;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      opacity: 0.9;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .habit-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+    .habit-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #6F8576;
+    }
+    .habit-desc {
+      margin-top: 10px;
+      color: #555;
+      line-height: 1.4;
+    }
+    .habit-duration {
+      margin-top: 14px;
+      font-weight: 600;
+      color: #7B9478;
+    }
+
+    .habit-icons {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: flex;
+      gap: 10px;
+    }
+    .habit-icons button {
+      background: none;
+      border: none;
+      color: #7A8F8B;
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+    .habit-icons button:hover {
+      color: #4C6E5A;
+    }
+
+    /* shared style */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 5;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: #FAF7F2;
+      border-radius: 12px;
+      width: 380px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      text-align: left;
+    }
+    .form-actions {
+      margin-top: 25px;
+      text-align: right;
+    }
+    .form-actions button {
+      background: #8FAA9D;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .form-actions button.cancel {
+      background: #B4C6A6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Archived Habits
+    <a href="/habits">Back to Habits</a>
+  </header>
+
+  <main>
+    <div class="habit-card" th:each="habit : ${archivedHabits}">
+      <div class="habit-title" th:text="${habit.title}">Habit Title</div>
+      <div class="habit-desc" th:text="${habit.description}">Description...</div>
+      <div class="habit-duration">
+        Duration: <span th:text="${habit.hours}">1</span>h <span th:text="${habit.minutes}">30</span>m
+      </div>
+      <div class="habit-icons">
+        <!-- restore button -->
+        <button type="button"
+                th:attr="data-id=${habit.id}"
+                onclick="openRestoreModal(this)">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <!-- permanent delete -->
+        <button type="button"
+                th:attr="data-id=${habit.id}"
+                onclick="openDeleteModal(this)">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- restore modal -->
+  <div class="modal" id="restoreModal">
+    <div class="modal-content">
+      <h2>Restore Habit</h2>
+      <p>Do you want to restore this habit to your active habits list?</p>
+      <div class="form-actions">
+        <button type="button" class="cancel" onclick="closeRestoreModal()">Cancel</button>
+        <a id="confirmRestore" style="text-decoration: none;">
+          <button type="button">Restore</button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- delete confirmation -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <h2>Delete Permanently</h2>
+      <p>This will permanently remove the habit from the archive. Continue?</p>
+      <div class="form-actions">
+        <button type="button" class="cancel" onclick="closeDeleteModal()">Cancel</button>
+        <a id="confirmDelete" style="text-decoration: none;">
+          <button type="button">Delete</button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // restore modal
+    function openRestoreModal(btn) {
+      const id = btn.getAttribute('data-id');
+      document.getElementById('confirmRestore').setAttribute('href', '/habits/restore/' + id);
+      document.getElementById('restoreModal').style.display = 'flex';
+    }
+    function closeRestoreModal() {
+      document.getElementById('restoreModal').style.display = 'none';
+    }
+
+    // delete modal
+    function openDeleteModal(btn) {
+      const id = btn.getAttribute('data-id');
+      document.getElementById('confirmDelete').setAttribute('href', '/habits/deleteArchived/' + id);
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    // close modals when clicking outside
+    window.onclick = e => {
+      const restoreModal = document.getElementById('restoreModal');
+      const deleteModal = document.getElementById('deleteModal');
+      if (e.target === restoreModal) restoreModal.style.display = 'none';
+      if (e.target === deleteModal) deleteModal.style.display = 'none';
+    };
+  </script>
+</body>
+</html>

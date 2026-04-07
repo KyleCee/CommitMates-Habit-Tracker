@@ -1,0 +1,320 @@
+/*THEME VARIABLES*/
+:root{
+    --background: #FAF7F2;
+    --surf: #FFFFFF;
+    --text: #2F2F2F;
+    --sidebar: #EAE6E1;
+    --sidebar_buttons: #F4F2EF;
+    --sidebar_hover_buttons: #D9D5CF;
+    --primary: #8FAA9D;
+    --primary_hover: #789D8C;
+    --shadow: rgba(0, 0, 0, 0.12);
+}
+
+[dark_theme="dark"]{
+    --background: #1F1F1F;
+    --surf: #2B2B2B;
+    --text: #EAEAEA;
+    --sidebar: #2A2A2A;
+    --sidebar_buttons: #383838;
+    --sidebar_hover_buttons: #505050;
+    --primary: #9ACBBC;
+    --primary_hover: #7DB4A7;
+    --shadow: rgba(0, 0, 0, 0.45);
+}
+/**main layout**/
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+}
+
+.container {
+    display: flex;
+    height: 100vh; }
+
+/**SIDEBAR LAYOUT**/
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--sidebar);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.68);
+    overflow-y:auto;
+}
+.sidebar h2{
+    margin: 0;
+    font-size: 22px;
+    color: var(--text);
+}
+
+.sidebar p{
+    font-size:16px;
+    opacity: 0.75;
+    margin-bottom:8px;
+    color: var(--text);
+}
+/*SIDEBAR BTNS*/
+.sidebar a {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--sidebar_buttons);
+    color: var(--text);
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.25s ease, padding-left 0.22s ease;
+}
+
+.sidebar a:hover {
+    background: var(--sidebar_hover_buttons);
+    padding-left: 16px;
+}
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+/*RIGHTSIDE CONTENT*/
+
+
+.right-panel {
+    padding: 40px; max-width: 100%;
+    margin-left: 260px;
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: stretch;
+    width: calc(100% - 260px);
+}
+
+.dashboardContents{
+    margin-left: 20px;
+    max-width: 850px;
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.dashboard-grid{
+    display:grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.todoList{
+    background: var(--surf);
+    color: var(--text);
+    width:350px;
+    padding: 20px;
+    border-radius: 12px;
+    display:flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
+.todo-item{
+    display:flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.todo-text p{
+    opacity: 0.7;
+    margin: 0;
+    font-size: 13px;
+}
+.todo-add {
+    display: flex;
+    gap: 10px;
+}
+.todo-add input{
+    flex:1;
+
+}
+
+.todo-add button{
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.todo-add button:hover{
+    background: var(--primary_hover);
+}
+/*CONTENT BOXES*/
+
+.daily-affirmationBox,
+.achievement-box,
+.calendar-box{
+    width: fit-content;
+    max-width: 100%;
+    background: var(--surf);
+    color: var(--text);
+    border-radius:12px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 6px var(--shadow);
+
+}
+.daily-affirmationBox h3,
+.achievement-box h3{
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+.daily-affirmationBox p,
+.achievement-content{
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    opacity: 0.75;
+}
+
+/*NEW HABIT BTN*/
+.new-habit-btn{
+    width:200px;
+    align-self: flex-start;
+}
+.new-habit-btn,
+.home {
+
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.new-habit-btn:hover,
+.home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+    background: var(--primary_hover);
+}
+
+/*LAYOUT & INPUTS*/
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+
+}
+input, textarea, select {
+    margin-top: 6px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: var(--surf);
+    color: var(--text);
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.form-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+.form-actions button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.form-actions button.cancel {
+    background: #B4C6A6;
+}
+
+/*MODALS*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.modal-content {
+    background: var(--surf);
+    color: var(--text);
+    padding: 25px;
+    border-radius: 12px;
+    width: 450px;
+    box-shadow: 0 3px 8px var(--shadow);
+}
+.modal-content input,
+.modal-content textarea,
+.modal-content select{
+    background: var(--surf);
+    border: 1px solid var(--primary);
+    color: var(--text);
+}
+.modal-content button:hover {
+    background: var(--primary_hover);
+}
+
+/*CALENDAR*/
+
+#calendar {
+    width: 100%;
+}
+
+.flatpickr-calendar {
+    background: var(--surf);
+    color: var(--text);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow);
+    font-size: 14px;
+}
+
+/*REMINDER BOX*/
+
+
+.reminder-box {
+    background-color: #E8AA9E;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 6px var(--shadow);
+    font-weight: 500;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+

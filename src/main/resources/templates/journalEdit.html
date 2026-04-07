@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Edit Journal Entry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #F5F1EA;
+      margin:0
+    }
+    textarea, input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    button {
+      background: #A8C5B0;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #8FAA9D;
+    }
+
+    .container{
+    display:flex;
+    min-height:100vh;
+    }
+    .content-area{
+    flex:1;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+    <div class="right-panel">
+        <h2>Edit Journal Entry</h2>
+        <form th:action="@{/journal/update/{id}(id=${journal.id})}" method="post">
+            <label>Date</label>
+            <input type="date" name="date" th:value="${journal.date}" required>
+
+            <label>Thoughts</label>
+            <textarea name="thoughts" th:text="${journal.thoughts}" required></textarea>
+
+            <label>Goals (Optional)</label>
+            <textarea name="goals" th:text="${journal.goals}"></textarea>
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Journal Entry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #F5F1EA;
+      margin:0;
+    }
+
+
+    h2 {
+      color: #8FAA9D;
+      font-size: 1.6em;
+      margin-bottom: 8px;
+    }
+
+    .header-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn-view-history {
+      background: #B4C6A6;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    .btn-view-history:hover {
+      background: #A2B598;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px 0;
+      color: #555;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    textarea,
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #E0E0E0;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    textarea[name="thoughts"] {
+      height: 240px;
+      margin-bottom: 15px;
+    }
+
+    textarea[name="goals"] {
+      height: 100px;
+    }
+
+    button[type="submit"] {
+      background: #A8C5B0;
+      color: white;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    button[type="submit"]:hover {
+      background: #8FAA9D;
+    }
+
+    .container{
+    display:flex;
+    min-height:100vh;
+    }
+    .content-area{
+    flex:1;
+    }
+  </style>
+</head>
+<body>
+
+
+  <div class="container">
+      <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+      <div class="right-panel">
+          <div class="header-buttons">
+              <h2>Write a Journal Entry</h2>
+              <a href="/journal/history" class="btn-view-history">📔 View History</a>
+          </div>
+
+          <form th:action="@{/journal/save}" method="post">
+              <!-- Date -->
+              <label for="date">Date</label>
+              <input type="date" id="date" name="date" th:value="${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}" required>
+
+              <!-- Main journal area -->
+              <textarea name="thoughts" placeholder="Write your thoughts, experiences, or reflections here..." required></textarea>
+
+              <!-- Goals section -->
+              <label>Goals or Notes (Optional)</label>
+              <textarea name="goals" placeholder="Anything you’d like to plan, note, or remember?" th:text="${journal.goals}"></textarea>
+
+              <button type="submit">Save Entry</button>
+          </form>
+      </div>
+
+  </div>
+</body>
+</html>

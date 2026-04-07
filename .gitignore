@@ -1,0 +1,11 @@
+/target/
+
+# Eclipse project files
+.classpath
+.project
+.settings
+
+# macOS finder files
+.DS_Store
+.metadata/
+

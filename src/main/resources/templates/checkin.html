@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Daily Check-In</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #F5F1EA;
+            margin:0;
+        }
+
+        h2 {
+            color: #8FAA9D;
+        }
+        .header-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn-view-history {
+            background: #B4C6A6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-view-history:hover {
+            background: #A2B598;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px 0;
+            color: #555;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .mood-display {
+            text-align: center;
+            font-size: 2em;
+            margin: 10px 0;
+        }
+        button[type="submit"] {
+            background: #A8C5B0;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover {
+            background: #8FAA9D;
+        }
+        .already-checked {
+            background: #B4C6A6;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .container{
+        display:flex;
+        min-height:100vh;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div th:replace="~{dashboardSidebar :: sidebar}"></div>
+
+        <div class="right-panel">
+            <div class="header-buttons">
+                <h2>Daily Check-In</h2>
+                <a href="/checkin/history" class="btn-view-history" style="font-size: 1rem; padding: 10px 20px;">📊 View History</a>
+            </div>
+
+            <div th:if="${alreadyCheckedIn}" class="already-checked">
+                ✓ You've already checked in today! You can update it anytime.
+            </div>
+
+            <form th:action="${alreadyCheckedIn} ? @{/checkin/update/{id}(id=${checkIn.id})} : @{/checkin/save}"
+                  method="post">
+
+                <label>How are you feeling today?</label>
+                <input type="range"
+                       id="mood"
+                       name="mood"
+                       min="1"
+                       max="5"
+                       th:value="${checkIn.mood != 0} ? ${checkIn.mood} : 3">
+                <div class="mood-display" id="moodDisplay">😐</div>
+
+                <label>Quick Reflection *</label>
+                <textarea name="reflection"
+                          rows="4"
+                          required
+                          th:text="${checkIn.reflection}"></textarea>
+
+                <label>Daily Message (Optional)</label>
+                <input type="text"
+                       name="message"
+                       th:value="${checkIn.message}">
+
+                <button type="submit" th:text="${alreadyCheckedIn} ? 'Update' : 'Save'">Save</button>
+            </form>
+        </div>
+
+
+    <script>
+        const emojis = ['😢', '😕', '😐', '😊', '😄'];
+        const slider = document.getElementById('mood');
+        const display = document.getElementById('moodDisplay');
+        
+        slider.addEventListener('input', function() {
+            display.textContent = emojis[this.value - 1];
+        });
+        
+        display.textContent = emojis[slider.value - 1];
+    </script>
+</body>
+</html>

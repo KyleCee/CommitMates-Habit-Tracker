@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rumi — Habit Tracker Login</title>
+
+  <style>
+    :root {
+      --sage: #A8C5B0;
+      --sage-dark: #8FAA9D;
+      --cream: #FAF7F2;
+      --accent: #E8AA9E;
+      --peach: #F2C5B8;
+      --light: #F5F1EA;
+      --text-dark: #2F2F2F;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      font-family: "Poppins", sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* LEFT PANEL: login form */
+    .left-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 50px;
+      background: #fff;
+      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .logo {
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--sage-dark);
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #7A8FA8;
+      margin-bottom: 40px;
+      letter-spacing: 0.3px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: var(--text-dark);
+    }
+
+    p {
+      margin-bottom: 25px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+    }
+
+    form {
+      width: 80%;
+      max-width: 300px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: var(--light);
+      outline: none;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 6px rgba(168, 197, 176, 0.5);
+    }
+
+    button {
+      width: 100%;
+      background: var(--sage-dark);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    .extra-links {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .extra-links a {
+      color: var(--sage-dark);
+      text-decoration: none;
+    }
+
+    .extra-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* RIGHT PANEL: animated motivational illustration */
+    .right-panel {
+      flex: 1;
+      position: relative;
+      background: linear-gradient(135deg, #A8C5B0, #FAF7F2, #F2C5B8);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease-in-out infinite alternate;      display: flex;
+      display: flex; flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      text-align: center; 
+      color: #2E3D35; 
+      padding: 40px; }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+   .illustration { background: #fff; 
+   border-radius: 50%; 
+   width: 140px; 
+   height: 140px; 
+   display: flex; 
+   justify-content: center; 
+   align-items: center; 
+   box-shadow: 0 0 15px rgba(0,0,0,0.08); 
+   margin-bottom: 20px; 
+   animation: float 5s ease-in-out infinite; }
+   
+    .illustration img { 
+    width: 70px; 
+    opacity: 0.9; 
+    }
+     @keyframes float { 
+     0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); }
+      } 
+      
+      .motivation { 
+      font-size: 20px; 
+      font-weight: 500; 
+      color: var(--text-dark); 
+      margin-top: 10px; }
+      
+       .subtext { 
+       font-size: 14px; 
+       color: #4b4b4b; 
+       margin-top: 5px; } 
+       
+       @media (max-width: 768px) { .right-panel { display: none; }
+        } 
+     </style>
+      </head>
+
+<body>
+
+  <div class="container">
+    <div class="left-panel">
+      <div class="logo">Rumi</div>
+      <div class="tagline">Reflect, Understand, Maintain & Improve</div>
+
+      <h2>Sign In</h2>
+      <p>Stay consistent. One day, one habit at a time.</p>
+
+     <form id="loginForm" method="post" action="/login">
+   <input type="text" name="name" placeholder="Name" required />
+   <input type="email" name="email" placeholder="Email" required />
+  <input type="password" name="password" placeholder="Password" required />
+  <button type="submit">Sign In</button>
+</form>
+
+<!-- Messages -->
+<div style="color:red; margin-top:10px;">
+  <span th:text="${error}"></span>
+</div>
+<div style="color:green; margin-top:10px;">
+  <span th:text="${message}"></span>
+</div>
+
+
+      <div class="extra-links">
+        <a href="#">Forgot password?</a><br />
+        Don’t have an account? <a href="#">Sign Up</a>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="illustration">
+      <img 
+        src="https://cdn-icons-png.flaticon.com/512/4359/4359932.png"
+        alt="Progress illustration" />
+    </div>
+      <div class="motivation">Go for better habits with Rumi 🌿</div> 
+      <div class="subtext">Small steps today become stronger tomorrows.</div> 
+  </div>
+  </div> 
+</body>
+</html>
